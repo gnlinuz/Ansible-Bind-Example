@@ -1,0 +1,12 @@
+$TTL 7200 ;2h
+@       IN SOA  ns0.{{ nsDomain }}. root.{{ nsDomain }}. (
+                2018121001 ;serial
+                3600       ;Refresh
+                1800       ;Retry
+                604800     ;Expire
+                86400      ;Minimum TTL
+)
+        IN NS   ns0.{{ nsDomain }}.
+        IN NS   ns2.{{ nsDomain }}.
+
+@       IN A    55.55.55.55

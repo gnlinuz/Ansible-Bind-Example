@@ -1,0 +1,45 @@
+- name: Install Bind DNS server on Centos7/Redhat
+  package: pkg={{ item }} state=installed
+  with_items:
+  - bind
+  - bind-utils
+  - net-tools
+
+- name: Remove default named conf file
+  file: path="/etc/named.conf" state=absent
+
+- name: copy named.conf file
+  template: src=../files/named.conf dest=/etc/named.conf owner=root group=named mode=0640
+  
+#- name: copy zone file to /var/named
+#  template: src=../files/linuxTestlaboratory.com.zone dest=/var/named/linuxTestlaboratory.com.zone owner=root group=named mode=0640
+
+- name: copy zone files to /var/named
+  template: src=../files/domains.zone dest=/var/named/{{ item }}.zone owner=root group=named mode=0640
+  with_list: "{{ domainList }}"
+
+- name: Insert block line in named.conf file
+  blockinfile:
+    dest: /etc/named.conf 
+    insertbefore: "^include \"/etc/named.rfc1912.zones\""
+    marker: // {mark} {{ item }}
+    block: |
+      zone "{{ item }}" IN {
+          type master;
+          file "{{ item }}.zone";
+          allow-update { none; };
+      };
+  with_list: "{{ domainList }}"
+
+#  with_items:
+#    - { name: domain1.com }
+#    - { name: domain2.com }
+#    - { name: domain3.com }      
+#  loop: '{{ lookup("List", domainList) }}'
+
+  notify:
+  - restart-named
+
+- name: Start Service and enable it
+  service: name=named state=started enabled=yes
+

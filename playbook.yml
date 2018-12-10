@@ -1,0 +1,10 @@
+---
+- hosts: centos7
+  gather_facts: False
+  vars:
+    - nsDomain: linuxTestlaboratory.com
+    - domainList: [ "domain1.com","domain2.com","domainn.com" ]
+  become: true
+  roles:
+  - bind
+
